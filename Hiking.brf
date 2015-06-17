@@ -2,7 +2,7 @@
 # 15/6/2015 v1.7.3 BETA * SAC-MTB scale integration reevaluated, increased MTB scale penalty
                         * MTB scale penalty used as fallback if no SAC rating
 #By default, this profile avoid Alpine hiking and prefers no mountain hiking
-# See bottom for Changelog and verbose comments.
+# See bottom for Changelog and verbose comments. 
 
 ---context:global
 
