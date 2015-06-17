@@ -1,5 +1,5 @@
 # Walking/Not demanding hiking profile, configurable to alpine hiking as well
-# 16/6/2015 v1.7.4 ALFA * Optimized SAC logic 
+# 17/6/2015 v1.7.5 ALFA Track penalty system, trimming costfactor >= 1.0
 #
 # By default, this profile avoid Alpine hiking and prefers no mountain hiking
 # See bottom for Changelog and verbose comments.
@@ -228,6 +228,8 @@ else 1.0
 
 
 assign costfactor
+
+  max 1.0
   
   if shortest_way  then (   add 1 accesspenalty ) else
   
@@ -338,3 +340,4 @@ assign initialcost switch or bikeaccess footaccess 0 1000000
 # 15/6/2015 v1.7.3 BETA * SAC-MTB scale integration reevaluated, increased MTB scale penalty
 #                       * MTB scale penalty used as fallback if no SAC rating
 # 16/6/2015 v1.7.4 ALFA * Optimized SAC logic 
+# 17/6/2015 v1.7.5 ALFA Track penalty system
