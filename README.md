@@ -1,2 +1,2 @@
 # Hiking-Poutnik
-Hiking profile for Brouter application
+Profile template for configured Hiking profiles for Brouter application
