@@ -111,6 +111,8 @@ assign ismuddy 	and or isunpaved surface=
 
 assign issidewalk not or sidewalk= or sidewalk=none sidewalk=no
 
+assign istrack highway=track|road|path|footway
+
 assign turncost   switch or shortest_way  is_ldhr   0 turncost_value  #v1.5 
 
 assign initialcost 
