@@ -304,7 +304,5 @@ assign initialcost switch or bikeaccess footaccess 0 1000000
 #                       + sac_scale_preferred implemented, with progressive penalizing for SAC <> SAC preferred
 # 10/6/2015 v1.7.2 BETA ! Fixed general way access penalties
 # 15/6/2015 v1.7.3 BETA * SAC-MTB scale integration reevaluated, increased MTB scale penalty
-                        * MTB scale penalty used as fallback if no SAC rating
+#                       * MTB scale penalty used as fallback if no SAC rating
 # 16/6/2015 v1.7.4 ALFA * Optimized SAC logic 
-
-
