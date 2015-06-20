@@ -1,5 +1,5 @@
 # Walking-Hiking-Mountain/Alpine Hiking profile TEMPLATE
-# 17/6/2015 v1.7.5 ALFA Track penalty system, trimming costfactor >= 1.0
+# 17/6/2015 v1.7.5 BETA Track penalty system, trimming costfactor >= 1.0
 # See bottom for Changelog and verbose comments.
 
 ---context:global
@@ -335,4 +335,4 @@ assign initialcost switch footaccess 0 switch bikeaccess 3 1000000
 # 15/6/2015 v1.7.3 BETA * SAC-MTB scale integration reevaluated, increased MTB scale penalty
 #                       * MTB scale penalty used as fallback if no SAC rating
 # 16/6/2015 v1.7.4 ALFA * Optimized SAC logic 
-# 17/6/2015 v1.7.5 ALFA Track penalty system
+# 17/6/2015 v1.7.5 BETA Track penalty system
