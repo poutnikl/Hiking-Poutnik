@@ -235,8 +235,7 @@ assign costfactor
 												  0.0    # no hiking route preference   
        )                                           
   add      accesspenalty
-  add      SAC_scale_penalty
-
+ 
   switch    ( and highway= not route=ferry )  100000 
   switch    highway=steps  ( switch allow_steps   ( switch consider_elevation 1.0 3.0 )     100000 )
   switch    route=ferry    switch allow_ferries 2.34 100000
@@ -246,13 +245,18 @@ assign costfactor
 
   switch    highway=pedestrian       switch ismuddy 1.3 1.0
   switch    highway=bridleway        switch ismuddy 2.5 1.2
-  switch    highway=cycleway         switch ismuddy 1.4     switch iswet   1.0 1.2
+  switch    highway=cycleway         switch ismuddy 1.4     switch iswet   1.0 1.1
   switch    highway=residential|living_street    
                                      switch ismuddy 1.5     switch iswet   1.0 1.1
   switch    highway=service          switch ismuddy 1.5     switch iswet   1.1 1.3
   
   switch istrack
-  ( 	add 1.0 add tracktype_penalty add surface_penalty   wet_penalty  	    )
+  ( 	add 1.0 
+  	add tracktype_penalty 
+  	add surface_penalty
+  	add wet_penalty
+  	    SAC_scale_penalty
+  	)
 
 							
   switch highway=motorway|motorway_link    100000
