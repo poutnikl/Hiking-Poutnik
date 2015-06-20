@@ -263,9 +263,23 @@ assign rawcostfactor2
   						
 assign costfactor max 1.0 rawcostfactor2     						
 
-assign downhillcostfactor max 1.0 rawcostfactor2 
+assign downhillcostfactor
+	max 1.0 
+	add rawcostfactor2 
+	if ismuddy 					then 0.5 #c sicky
+	if surface=grass				then -0.2 # soft impact
+	if ispaved  					then 0.2 # hard impact
+	else if surface=gravel|pebblestone|fine_gravel	then 0.3 # slides
+        else 0.0
 
-assign uphillcostfactor max 1.0 rawcostfactor2 
+assign uphillcostfactor 
+	max 1.0 
+	add rawcostfactor2 
+	if ismuddy 					then 0.3 # slicky
+	if surface=grass				then 0.1 # unsure foot
+	if ispaved  					then -0.1 # sure foot
+	else if surface=gravel|pebblestone|fine_gravel	then 0.2 # slides
+        else 0.0
  
 ---context:node  # following code refers to node tags
 
