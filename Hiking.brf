@@ -9,7 +9,7 @@ assign   shortest_way             0    # 0 as default, duplicate shortest standa
 
 assign   iswet                    0    # 0 as default, 1 tries to prevent muddy boots and wet buttocks
 
-assign   hiking_routes_preference  0.10    # 0.15 as default
+assign   hiking_routes_preference  0.10    # 0.10 as default
 # Increases cost of non hiking routes, decreases cost of hiking routes, both by factor 1 +/- 0.5 * hiking_routes_preference
 
 #SAC - mountain hiking - see http://wiki.openstreetmap.org/wiki/Key:sac_scale
