@@ -65,7 +65,7 @@ assign hr_preferred or prefer_hiking_routes stick_to_hiking_routes
 #is to keep final penalties additive, even with multiplicative incremental penalty approach
 #code is run only once, being in global context
 
-assign  SAC_K1      0.1 # Penalizing of SAC levels below preferred 
+assign  SAC_K1      0.05 # Penalizing of SAC levels below preferred 
 assign  SAC_K2      0.6 # Penalizing of SAC levels above preferred  
 
 assign  SAC_K10     add SAC_K1 1.0
