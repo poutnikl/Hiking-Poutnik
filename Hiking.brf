@@ -109,7 +109,7 @@ assign ismuddy 	and or isunpaved surface=
 				and iswet
 				not or surface=gravel surface=pebblestone 
 
-assign issidewalk not or sidewalk= or sidewalk=none sidewalk=no
+assign issidewalk sidewalk=left|right|both|yes
 
 assign istrack highway=track|road|path|footway
 assign ismainroad highway=motorway|motorway_link|trunk|trunk_link|primary|primary_link|secondary|secondary_link|tertiary|tertiary_link|unclassified
