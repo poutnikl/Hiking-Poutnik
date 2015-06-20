@@ -10,7 +10,7 @@ assign   shortest_way             0    # 0 as default, duplicate shortest standa
 assign   iswet                    0    # 0 as default, 1 tries to prevent muddy boots and wet buttocks
 
 assign   hiking_routes_preference  0.10    # 0.10 as default
-# Increases cost of non hiking routes, decreases cost of hiking routes, both by factor 1 +/- 0.5 * hiking_routes_preference
+# Increases cost of non hiking routes by factor 1 + hiking_routes_preference
 
 #SAC - mountain hiking - see http://wiki.openstreetmap.org/wiki/Key:sac_scale
 assign   SAC_scale_limit          3    # 0..6, 0 to avoid any SAC paths, 1 for T1 as maximum, 6 for T6 as maximum
@@ -46,8 +46,7 @@ assign downhillcutoff	switch consider_elevation      downhillcutoffvalue 0
 assign uphillcost   switch     consider_elevation      uphillcostvalue  0
 assign uphillcutoff switch     consider_elevation      uphillcutoffvalue 0
 
-assign   hiking_route_promotion     add 1.0 multiply hiking_routes_preference -0.5
-assign   nonhiking_route_penalty    add 1.0 multiply hiking_routes_preference 0.5
+assign   nonhiking_route_penalty    add 1.0 max 0.0 hiking_routes_preference
 
 assign   validForFoot        1
 
@@ -260,7 +259,7 @@ assign costfactor
   
   max 1.0 (
   if equal hiking_routes_preference 0.0 	then	rawcostfactor  # Not preferring hiking routes
-  else if is_ldhr 				then	multiply rawcostfactor hiking_route_promotion
+  else if is_ldhr 				then	rawcostfactor  # is hiking route
   						else	multiply rawcostfactor nonhiking_route_penalty		)
  
 ---context:node  # following code refers to node tags
