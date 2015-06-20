@@ -22,8 +22,8 @@ assign  SAC_K1 0.05                    # Penalizing of SAC levels below preferre
 assign  SAC_K2 0.6                     # Penalizing of SAC levels above preferred  
 
 #orientation/decision penalties, not used for preferred hiking routes
-assign   turncost_value           0 # 20 as default, not used now
-assign   initialcost_value        0 # 50 as default, not used now
+assign   turncost_value           0 # not used now
+assign   initialcost_value        0 # not used now
 
 #less frequently changed flags
 assign   allow_steps              1  # 1 as default
