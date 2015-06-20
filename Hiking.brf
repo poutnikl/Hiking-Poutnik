@@ -120,11 +120,6 @@ assign initialcost
 
 assign defaultaccess    switch access=    not motorroad=yes    switch or access=private access=no   0   1
 
-
-assign footaccess     or any_hiking_route 
-                      or issidewalk 
-                         switch foot=    defaultaccess   switch foot=private|no 0 1
-
 assign bikeaccess
        or any_cycleroute
           switch bicycle=
@@ -135,13 +130,11 @@ assign bikeaccess
                                1
                  not or bicycle=private or bicycle=no bicycle=dismount
 
-                         
-assign footaccess
-       or and bikeaccess  not foot=no
-          or bicycle=dismount
-             switch foot=
-                    defaultaccess
-                    not or foot=private foot=no
+assign footaccess     or any_hiking_route 
+                      or issidewalk 
+                      or and bikeaccess  not foot=no
+                      or bicycle=dismount
+                      switch foot=      defaultaccess    not foot=private|no
                          
 assign accesspenalty switch footaccess 0 switch bikeaccess 4 100000
 
