@@ -255,12 +255,31 @@ assign rawcostfactor # can be <1.0, it treated later
   else add cost_of_unknown switch ismuddy 0.5 0.0
   )
   
-assign costfactor   
+assign rawcostfactor2   
   
-  max 1.0 (
   if equal hiking_routes_preference 0.0 	then	rawcostfactor  # Not preferring hiking routes
   else if is_ldhr 				then	rawcostfactor  # is hiking route
-  						else	multiply rawcostfactor nonhiking_route_penalty		)
+  						else	multiply rawcostfactor nonhiking_route_penalty	
+  						
+assign costfactor max 1.0 rawcostfactor2     						
+
+assign downhillcostfactor
+	max 1.0 
+	add rawcostfactor2 
+	if ismuddy 					then 0.5 #c sicky
+	else if surface=grass				then -0.2 # soft impact
+	else if ispaved  				then 0.2 # hard impact
+	else if surface=gravel|pebblestone|fine_gravel	then 0.3 # slides
+        else 0.0
+
+assign uphillcostfactor 
+	max 1.0 
+	add rawcostfactor2 
+	if ismuddy 					then 0.3 # slicky
+	else if surface=grass				then 0.1 # unsure foot
+	else if ispaved  				then -0.1 # sure foot
+	else if surface=gravel|pebblestone|fine_gravel	then 0.2 # slides
+        else 0.0
  
 ---context:node  # following code refers to node tags
 
