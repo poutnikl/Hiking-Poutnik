@@ -255,12 +255,17 @@ assign rawcostfactor # can be <1.0, it treated later
   else add cost_of_unknown switch ismuddy 0.5 0.0
   )
   
-assign costfactor   
+assign rawcostfactor2   
   
-  max 1.0 (
   if equal hiking_routes_preference 0.0 	then	rawcostfactor  # Not preferring hiking routes
   else if is_ldhr 				then	rawcostfactor  # is hiking route
-  						else	multiply rawcostfactor nonhiking_route_penalty		)
+  						else	multiply rawcostfactor nonhiking_route_penalty	
+  						
+assign costfactor max 1.0 rawcostfactor2     						
+
+assign downhillcostfactor max 1.0 rawcostfactor2 
+
+assign uphillcostfactor max 1.0 rawcostfactor2 
  
 ---context:node  # following code refers to node tags
 
