@@ -1,5 +1,5 @@
 # Walking-Hiking-Mountain/Alpine Hiking profile TEMPLATE
-# 17/6/2015 v1.7.5 BETA Track penalty system, trimming costfactor >= 1.0
+# 20/6/2015 v1.7.5 ALFA * Modified and simplified route preferencing
 # See bottom for Changelog and verbose comments.
 
 ---context:global
@@ -9,10 +9,8 @@ assign   shortest_way             0    # 0 as default, duplicate shortest standa
 
 assign   iswet                    0    # 0 as default, 1 tries to prevent muddy boots and wet buttocks
 
-assign   prefer_hiking_routes     1    # 1 as default, gives penalty to way not being hiking route and cancels route turncost
-assign   stick_to_hiking_routes   0    # 0 as default, as above, but gives higher penalty costfactor + way/node initial costs
-assign   non_hiking_route_penalty 0.15 # 0.25 as default, used with prefer_hiking_routes
-assign   non_sticky_route_penalty 0.5  # 1.0 as default, used stick_to_hiking_routes  #v1.5
+assign   hiking_routes_preference  0.10    # 0.15 as default
+# Increases cost of non hiking routes, decreases cost of hiking routes, both by factor 1 +/- 0.5 * hiking_routes_preference
 
 #SAC - mountain hiking - see http://wiki.openstreetmap.org/wiki/Key:sac_scale
 assign   SAC_scale_limit          3    # 0..6, 0 to avoid any SAC paths, 1 for T1 as maximum, 6 for T6 as maximum
@@ -48,9 +46,10 @@ assign downhillcutoff	switch consider_elevation      downhillcutoffvalue 0
 assign uphillcost   switch     consider_elevation      uphillcostvalue  0
 assign uphillcutoff switch     consider_elevation      uphillcutoffvalue 0
 
-assign   validForFoot        1
+assign   hiking_route_promotion     add 1.0 multiply hiking_routes_preference -0.5
+assign   nonhiking_route_penalty    add 1.0 multiply hiking_routes_preference 0.5
 
-assign hr_preferred or prefer_hiking_routes stick_to_hiking_routes
+assign   validForFoot        1
 
 #Penalizing SAC routes below (K1) and above(K2) preferred SAC scale
 #see  http://wiki.openstreetmap.org/wiki/Key:sac_scale
@@ -98,7 +97,7 @@ assign any_cycleroute =
      else if route_bicycle_lcn=yes then true
      else false                        
                        
-assign is_ldhr 				and any_hiking_route hr_preferred
+assign is_ldhr 	and any_hiking_route not equal 0.0 hiking_routes_preference
 assign nodeaccessgranted 	any_hiking_route
 
 # ismuddy addresses potentially bad surface conditions during wet weather ( mud, slickiness of grass)
@@ -114,9 +113,9 @@ assign ismainroad highway=motorway|motorway_link|trunk|trunk_link|primary|primar
 assign turncost   switch or shortest_way  is_ldhr   0 turncost_value  #v1.5 
 
 assign initialcost 
-   switch route=ferry 10000 
+   switch route=ferry 10000  
       
-   switch or shortest_way  is_ldhr  0 switch stick_to_hiking_routes initialcost_value 0
+   switch or shortest_way  is_ldhr  0 initialcost_value 
 
 assign defaultaccess    switch access=    not motorroad=yes    switch or access=private access=no   0   1
 
@@ -216,17 +215,11 @@ assign wet_penalty (
         else                          ( if ispaved then -0.2 else if ismuddy then 2.5 else 1.0 )
         )
 
-assign costfactor
+assign rawcostfactor # can be <1.0, it treated later
 
-  max 1.0
+    if shortest_way  then (   add 1 accesspenalty )   else
   
-  if shortest_way  then (   add 1 accesspenalty )   else
   
-  add  ( switch is_ldhr                             0.0    # hiking route, no non-hiking road penalty 
-              switch stick_to_hiking_routes       non_sticky_route_penalty
-              switch prefer_hiking_routes         non_hiking_route_penalty			  
-	      0.0    # no hiking route preference   
-       )                                           
   add      accesspenalty
   (
   if    ( and highway= not route=ferry )  then 100000 
@@ -262,6 +255,14 @@ assign costfactor
   
   else add cost_of_unknown switch ismuddy 0.5 0.0
   )
+  
+assign costfactor   
+  
+  max 1.0 (
+  if equal hiking_routes_preference 0.0 	then	rawcostfactor  # Not preferring hiking routes
+  else if is_ldhr 				then	multiply rawcostfactor hiking_route_promotion
+  						else	multiply rawcostfactor nonhiking_route_penalty		)
+ 
 ---context:node  # following code refers to node tags
 
 assign defaultaccess
@@ -326,4 +327,5 @@ assign initialcost switch footaccess 0 switch bikeaccess 3 1000000
 # 15/6/2015 v1.7.3 BETA * SAC-MTB scale integration reevaluated, increased MTB scale penalty
 #                       * MTB scale penalty used as fallback if no SAC rating
 # 16/6/2015 v1.7.4 ALFA * Optimized SAC logic 
-# 17/6/2015 v1.7.5 BETA Track penalty system
+# 17/6/2015 v1.7.5 BETA + Track penalty system
+# 20/6/2015 v1.7.5 ALFA * Modified and simplified route preferencing
