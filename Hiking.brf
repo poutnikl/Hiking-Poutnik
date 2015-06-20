@@ -1,5 +1,5 @@
 # Walking-Hiking-Mountain/Alpine Hiking profile TEMPLATE
-# 20/6/2015 v1.7.5 BETA * Modified and simplified route preferencing
+# 20/6/2015 v1.7.5 RELEASE CANDIDATE * Modified and simplified route preferencing
 # See bottom for Changelog and verbose comments.
 
 ---context:global
@@ -346,4 +346,4 @@ assign initialcost switch footaccess 0 switch bikeaccess 3 1000000
 #                       * MTB scale penalty used as fallback if no SAC rating
 # 16/6/2015 v1.7.4 ALFA * Optimized SAC logic 
 # 17/6/2015 v1.7.5 BETA + Track penalty system
-# 20/6/2015 v1.7.5 BETA * Modified and simplified route preferencing
+
