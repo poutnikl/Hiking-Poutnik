@@ -1,6 +1,7 @@
 # Walking-Hiking-Mountain/Alpine Hiking profile TEMPLATE
-# 20/6/2015 v1.7.6 RELEASE * Modified and simplified route preferencing
+# 01/12/2015 v1.8.1 ALFA   +ported MTB_factor from bicycle Trekking template, renamed for hiking context to Offroad_factor
 # See bottom for Changelog and verbose comments.
+# See also https://github.com/poutnikl/Brouter-profiles/wiki
 
 ---context:global
 
@@ -8,9 +9,9 @@ assign   consider_elevation       1    # 0 as default, otherwise less interestin
 assign   shortest_way             0    # 0 as default, duplicate shortest standard profile, SAC access limit ignored for now
 
 assign   iswet                    0    # 0 as default, 1 tries to prevent muddy boots and wet buttocks
+assign   hiking_routes_preference  0.20    # 0.10 as default, Increases cost of non hiking routes by multiplier 1 + hiking_routes_preference
 
-assign   hiking_routes_preference  0.10    # 0.10 as default
-# Increases cost of non hiking routes by factor 1 + hiking_routes_preference
+assign   Offroad_factor           0.0 # default 0.0, see ****), see also https://github.com/poutnikl/Brouter-profiles/wiki/Trekking-MTB-Profiles---legend
 
 #SAC - mountain hiking - see http://wiki.openstreetmap.org/wiki/Key:sac_scale
 assign   SAC_scale_limit          3    # 0..6, 0 to avoid any SAC paths, 1 for T1 as maximum, 6 for T6 as maximum
@@ -41,10 +42,19 @@ assign   downhillcutoffvalue  3
 assign   downhillcostvalue    7
 
 #internal parameters
-assign downhillcost switch     consider_elevation      downhillcostvalue 0
-assign downhillcutoff	switch consider_elevation      downhillcutoffvalue 0
-assign uphillcost   switch     consider_elevation      uphillcostvalue  0
-assign uphillcutoff switch     consider_elevation      uphillcutoffvalue 0
+assign   Offroad_hillcostfactor   multiply -0.3333 ( max -3.0 ( multiply -1.0 ( max 0.0 Offroad_factor ) ) )
+                  # for Offroadfactor <=0 is 0, for Offroadfactor >=3 is 1, otherwise 0.3333 * Offroadfactor
+			      # progressively decreases hillcosts to be 0.0 at Offroad_factor = 3.0
+			      # if Offroad_factor = 1 , then downhillcost decreases e.g. from 60 to 40
+
+assign   downhillcost if consider_elevation  then 
+        ( multiply ( add 1.0 ( multiply Offroad_hillcostfactor -1.0 ) ) downhillcostvalue ) else 0
+
+assign   uphillcost   if consider_elevation  then
+        ( multiply ( add 1.0 ( multiply Offroad_hillcostfactor -1.0 ) ) uphillcostvalue ) else 0
+
+assign   uphillcutoff    if  consider_elevation   then    uphillcutoffvalue else 1.5
+assign   downhillcutoff  if  consider_elevation   then  downhillcutoffvalue else 1.5 
 
 assign   nonhiking_route_penalty    add 1.0 max 0.0 hiking_routes_preference
 
@@ -214,7 +224,17 @@ assign wet_penalty (
         else                          ( if ispaved then -0.2 else if ismuddy then 2.5 else 1.0 )
         )
 
-assign rawcostfactor # can be <1.0, it treated later
+assign Offroad_factor_for_road
+  if  ( equal Offroad_factor 0.0 ) then 0.0  else 
+  (
+	if	ismainroad	then  Offroad_factor  
+    else if ( or ispaved highway=residential|living_street|service|pedestrian )  then ( multiply 0.33 Offroad_factor )   
+    else if ( not isunpaved ) 										 						then ( multiply -0.33 Offroad_factor )   
+      else  ( multiply -1 multiply Offroad_factor ( add 1.0 ( multiply 0.33 SAC_scale_penalty ) ) )
+    )
+        		
+		
+assign rawcostfactor # can be <1.0, is treated later
 
     if shortest_way  then (   add 1 accesspenalty )   else
   
@@ -261,11 +281,12 @@ assign rawcostfactor2
   else if is_ldhr 				then	rawcostfactor  # is hiking route
   						else	multiply rawcostfactor nonhiking_route_penalty	
   						
-assign costfactor max 1.0 rawcostfactor2     						
+assign costfactor max 1.0 add rawcostfactor2 Offroad_factor_for_road    						
 
 assign downhillcostfactor
 	max 1.0 
-	add rawcostfactor2 
+	add rawcostfactor2
+	add Offroad_factor_for_road	
 	if ismuddy 					then 0.5 #c sicky
 	else if surface=grass				then -0.2 # soft impact
 	else if ispaved  				then 0.2 # hard impact
@@ -274,7 +295,8 @@ assign downhillcostfactor
 
 assign uphillcostfactor 
 	max 1.0 
-	add rawcostfactor2 
+	add rawcostfactor2
+	add Offroad_factor_for_road
 	if ismuddy 					then 0.3 # slicky
 	else if surface=grass				then 0.1 # unsure foot
 	else if ispaved  				then -0.1 # sure foot
@@ -312,6 +334,39 @@ assign footaccess
 
 assign initialcost switch footaccess 0 switch bikeaccess 3 1000000
 
+#############################################################################################
+# ****) Offroad_factor ( ported MTB_factor from bicycle Trekking profile
+#############################################################################################
+#
+# MTB_factor tweaks/trims MTB approach of the profile  by preferring/penalizing in progressive order
+# nonpaved  - preferred
+# not paved - little preferred
+# paved     - little penalized
+# mainroads - penalized
+#
+# MTB_factor can be used for one-time tweaking of routing profile for particular trip,
+# or trimming of the profile according to biker preferencing without need of profile deep insight
+#
+# Positive values progessively promote/penalize roads in favour of MTB riding.
+
+# Negative value has the opposite effect, preferring mainroads and penalizing unpaved roads.
+# This effect is somewhat similar to iswet=1 ( *) wet weather mode ),
+# but does not distinguish particular road classes / surfaces / smoothness,
+# aside of mentioned schema below.
+
+# The calculated values below is added to the costfactor.
+
+# + MTB_factor                                    for main roads (tertiaries and better),
+# + 0.33 * MTB_factor                             for paved roads,
+# - 0.33 * MTB_factor                             for not paved/not unpaved roads,
+# - MTB_factor * ( 1 + 0.33 * smoothnesspenalty ) for unpaved roads.  - at MTB_factor 3.0 smootheness is ignored
+#
+# Default   is 0.0 = no effect. 
+# Recommended -0.5 - +1.0
+# Reasonable  -2.0 .. +3.0, 
+#
+# Final costfactor is kept >= 1 for final costfacto values.
+#############################################################################################
 # changelog:
 # Feature is / + added / - removed / * changed / ! fixed
 
@@ -347,4 +402,4 @@ assign initialcost switch footaccess 0 switch bikeaccess 3 1000000
 # 16/6/2015 v1.7.4 ALFA * Optimized SAC logic 
 # 17/6/2015 v1.7.5 BETA + Track penalty system
 # 20/6/2015 v1.7.6 RELEASE * Modified and simplified route preferencing
-
+# 01/12/2015 v1.8.1 ALFA   +ported MTB_factor from bicycle Trekking template, renamed for hiking context to Offroad_factor
