@@ -1,8 +1,6 @@
 ### Hiking-Poutnik
 
-The template for my Hiking profiles for  Brouter offline routing service on Android.
-
-You can easily derive up-to-date versions of my [Hiking profiles](https://github.com/poutnikl/Brouter-profiles/wiki/Hiking-profiles) from the latest [Template file](https://raw.githubusercontent.com/poutnikl/Hiking-Poutnik/master/Hiking.brf). 
+The template for my Hiking profiles for  Brouter offline routing service on Android. You can easily derive up-to-date versions of my [Hiking profiles](https://github.com/poutnikl/Brouter-profiles/wiki/Hiking-profiles) from the latest [Template file](https://raw.githubusercontent.com/poutnikl/Hiking-Poutnik/master/Hiking.brf). 
 
 While saving, do not forget the .brf extension.
 
