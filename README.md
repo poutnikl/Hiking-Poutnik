@@ -18,7 +18,7 @@ While saving, do not forget the .brf extension.
 |Alpine-Demanding      |limit 5 / preferred 3            |                                                     |
 |Alpine-Difficult      |limit 6 / preferred 4            |                                                     |
 |"Unpaved"             |assign Offroad_factor 0.5 .. 3   |[See MTB profiles](https://github.com/poutnikl/Brouter-profiles/wiki/Trekking-MTB-Profiles---legend)                                                     |
-|"Paths"               |assign path_preference 0.5 .. 4  |Progressively penalizes ways different to paths      |
+|"Paths"               |assign path_preference 5 .. 20   |Progressively penalizes ways different to paths      |
 
 
 
