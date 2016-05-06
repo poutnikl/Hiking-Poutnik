@@ -6,15 +6,18 @@ You can easily derive up-to-date versions of my [Hiking profiles](https://github
 
 While saving, do not forget the .brf extension.
 
-|Profile name          |What to change                  |Comment                                              |
-|----------------------|--------------------------------|-----------------------------------------------------|
-|Walking               |assign   SAC_scale_limit     1  | to safe space, for the following profiles           |
-|                      |assign   SAC_scale_preferred 0  | it is written like limit 1 / preferred 0            |
-|Walking-wet           |assign   iswet 1                | additionally to Walking, applicable to below as well|
-|Hiking                |limit 2 / preferred 1           |                                                     |
-|Mountain-hiking       |limit 3 / preferred 1           | Mauntain/Alpine Hiking profile limites tweaked      |
-|Alpine-Easy           |limit 4 / preferred 2           |                                                     |
-|Alpine-Demanding      |limit 5 / preferred 3           |                                                     |
-|Alpine-Difficult      |limit 6 / preferred 4           |                                                     |
+
+|Profile name          |What to change                   |Comment                                              |
+|----------------------|---------------------------------|-----------------------------------------------------|
+|Walking               |assign   SAC_scale_limit     1   | to safe space, for the following profiles           |
+|                      |assign   SAC_scale_preferred 0   | it is written like limit 1 / preferred 0            |
+|Walking-wet           |assign   iswet 1                 | additionally to Walking, applicable to below as well|
+|Hiking                |limit 2 / preferred 1            |                                                     |
+|Mountain-hiking       |limit 3 / preferred 1            | Mauntain/Alpine Hiking profile limites tweaked      |
+|Alpine-Easy           |limit 4 / preferred 2            |                                                     |
+|Alpine-Demanding      |limit 5 / preferred 3            |                                                     |
+|Alpine-Difficult      |limit 6 / preferred 4            |                                                     |
+|"Offroad"             |assign Offroad_factor 0.5 .. 2.5 |[See MTB profiles](https://github.com/poutnikl/Brouter-profiles/wiki/Trekking-MTB-Profiles---legend)                                                     |
+|"QuietPaths"          |assign path_preference 0.5 .. 4  |Penalizes anything but OSM highway=path              |
 
 
