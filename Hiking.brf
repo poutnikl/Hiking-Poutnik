@@ -1,5 +1,5 @@
 # Walking-Hiking-Mountain/Alpine Hiking profile TEMPLATE
-# 3/5/2015  v1.8.3 BETA   +implemented navigation hint support
+# 7/5/2015  v1.8.4 BETA   +implemented navigation hint support ftom BRouter 1.4
 # See bottom for Changelog and verbose comments.
 # See also https://github.com/poutnikl/Brouter-profiles/wiki,  https://github.com/poutnikl/Hiking-Poutnik
 
@@ -8,7 +8,7 @@
 assign   consider_elevation       1    # 0 as default, otherwise less interesting flat roads are chosen.
 assign   shortest_way             0    # 0 as default, duplicate shortest standard profile, SAC access limit ignored for now
 
-assign   turnInstructionMode  =   1    # 0=none, 1=auto-choose, 2=locus-style, 3=osmand-style, 4=comment-style, 5=gpsies-style
+assign   turnInstructionMode  =   1    # 0=none, 1=auto-choose, 2=locus-style, 3=osmand-style
 
 assign   iswet                     0       # 0 as default, 1 tries to prevent muddy boots and wet buttocks
 assign   hiking_routes_preference  0.20    # 0.10 as default, Increases cost of non hiking routes by multiplier 1 + hiking_routes_preference
@@ -153,7 +153,9 @@ assign footaccess     or any_hiking_route
                          
 assign accesspenalty switch footaccess 0 switch bikeaccess 4 100000
 
-#
+assign badoneway = 0
+assign onewaypenalty = 0
+
 
 #SAC is estimated path difficulty, 
 #integrating both MTB and SAC scales with estimated MTB/SAC difficulty matching
@@ -322,7 +324,7 @@ assign uphillcostfactor
     else if surface=gravel|pebblestone|fine_gravel  then 0.2 # slides
                                                     else 0.0
         
-# odd priorities indicate link-types
+# way priorities used for voice hint generation
         
 assign priorityclassifier =
 
@@ -346,7 +348,25 @@ assign priorityclassifier =
                                                       else if not surface=grass|gravel          then  3
                                                                                                 else  2 )   
   else 0
-  
+
+# some more classifying bits used for voice hint generation...
+
+assign isbadoneway = 0
+assign isgoodoneway = 0
+assign isroundabout = junction=roundabout
+assign islinktype = highway=motorway_link|trunk_link|primary_link|secondary_link|tertiary_link
+assign isgoodforcars = if greater priorityclassifier 19 then true
+                  else if highway=residential|living_street|service then true
+                  else if ( and highway=track tracktype=grade1 ) then true
+                  else false
+
+# ... encoded into a bitmask
+
+assign classifiermask add          isbadoneway
+                      add multiply isgoodoneway   2
+                      add multiply isroundabout   4
+                      add multiply islinktype     8
+                          multiply isgoodforcars 16  
  
 ---context:node  # following code refers to node tags
 
@@ -451,3 +471,4 @@ assign initialcost switch or bikeaccess footaccess 0 1000000
 # 01/12/2015 v1.8.1 ALFA   +ported MTB_factor from bicycle Trekking template, renamed for hiking context to Offroad_factor
 # 02/4/2015 v1.8.2 ALFA   +implemented path preference factor , try 20.0. Default 0.0 has no effect
 # 3/5/2015  v1.8.3 BETA   +implemented navigation hint support
+# 7/5/2015  v1.8.4 BETA   +implemented navigation hint support ftom BRouter 1.4
