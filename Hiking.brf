@@ -1,5 +1,5 @@
 # Walking-Hiking-Mountain/Alpine Hiking profile TEMPLATE
-# 7/5/2015  v1.8.4 BETA   +implemented navigation hint support ftom BRouter 1.4
+# 10/5/2015  v1.8.6 BETA   * decreased turnInstructionCatchingRange from default 40 to 20
 # See bottom for Changelog and verbose comments.
 # See also https://github.com/poutnikl/Brouter-profiles/wiki,  https://github.com/poutnikl/Hiking-Poutnik
 
@@ -8,7 +8,8 @@
 assign   consider_elevation       1    # 0 as default, otherwise less interesting flat roads are chosen.
 assign   shortest_way             0    # 0 as default, duplicate shortest standard profile, SAC access limit ignored for now
 
-assign   turnInstructionMode  =   1    # 0=none, 1=auto-choose, 2=locus-style, 3=osmand-style
+assign   turnInstructionMode  =   1       # 0=none, 1=auto-choose, 2=locus-style, 3=osmand-style
+assign   turnInstructionCatchingRange  20 # V1.8.5 / default=40, but foot paths may be more distingushed, especially in cities.
 
 assign   iswet                     0       # 0 as default, 1 tries to prevent muddy boots and wet buttocks
 assign   hiking_routes_preference  0.20    # 0.10 as default, Increases cost of non hiking routes by multiplier 1 + hiking_routes_preference
@@ -471,4 +472,5 @@ assign initialcost switch or bikeaccess footaccess 0 1000000
 # 01/12/2015 v1.8.1 ALFA   +ported MTB_factor from bicycle Trekking template, renamed for hiking context to Offroad_factor
 # 02/4/2015 v1.8.2 ALFA   +implemented path preference factor , try 20.0. Default 0.0 has no effect
 # 3/5/2015  v1.8.3 BETA   +implemented navigation hint support
-# 7/5/2015  v1.8.4 BETA   +implemented navigation hint support ftom BRouter 1.4
+# 7/5/2015  v1.8.4 RELEASE +implemented navigation hint support ftom BRouter 1.4
+# 10/5/2015 v1.8.6 BETA   * decreased turnInstructionCatchingRange from default 40 to 20
