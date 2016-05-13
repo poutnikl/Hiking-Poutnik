@@ -17,5 +17,5 @@ The template uses difficulty rating [SAC scale](https://wiki.openstreetmap.org/w
 |"Unpaved"             |assign Offroad_factor 0.5 .. 3   |[See MTB profiles](https://github.com/poutnikl/Brouter-profiles/wiki/Trekking-MTB-Profiles---legend)                                                     |
 |"Paths"               |assign path_preference 5 .. 20   |Progressively penalizes ways different to paths      |
 
-
+[Visit also my Brouter profiles wiki pages](https://github.com/poutnikl/Brouter-profiles/wiki)
 
