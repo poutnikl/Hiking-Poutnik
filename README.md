@@ -16,6 +16,7 @@ The template uses difficulty rating [SAC scale](https://wiki.openstreetmap.org/w
 |Alpine-Difficult      |limit 6 / preferred 4            |                                                     |
 |"Unpaved"             |assign Offroad_factor 0.5 .. 3   |[See MTB profiles](https://github.com/poutnikl/Brouter-profiles/wiki/Trekking-MTB-Profiles---legend)                                                     |
 |"Paths"               |assign path_preference 5 .. 20   |Progressively penalizes ways different to paths      |
+|Nordic_Walkings       |assign Offroad_factor 1.0        |Stronger preference of unpaved ways                  |
 
 [Visit also my Brouter profiles wiki pages](https://github.com/poutnikl/Brouter-profiles/wiki)
 
