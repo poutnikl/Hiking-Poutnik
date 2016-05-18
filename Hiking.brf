@@ -1,7 +1,8 @@
 # Walking-Hiking-Mountain/Alpine Hiking profile TEMPLATE
-# 10/5/2015  v1.8.6 BETA   * decreased turnInstructionCatchingRange from default 40 to 20
+# 18/5/2016  v1.8.7 BETA   ! Fixed down/uphillcostfactors for shortest_way - to be really shortest
 # See bottom for Changelog and verbose comments.
-# See also https://github.com/poutnikl/Brouter-profiles/wiki,  https://github.com/poutnikl/Hiking-Poutnik
+# See also https://github.com/poutnikl/Brouter-profiles/wiki
+# and https://github.com/poutnikl/Hiking-Poutnik
 
 ---context:global
 
@@ -303,9 +304,11 @@ assign rawcostfactor2
   else if is_ldhr                 then    rawcostfactor  # is hiking route
                           else    multiply rawcostfactor nonhiking_route_penalty    
                           
-assign costfactor max 1.0 add rawcostfactor2 Offroad_factor_for_road                            
+assign costfactor if shortest_way  then  ( add 1 accesspenalty )   
+       else max 1.0 add rawcostfactor2 Offroad_factor_for_road                            
 
 assign downhillcostfactor
+    if shortest_way  then (   add 1 accesspenalty )   else
     max 1.0 
     add rawcostfactor2
     add Offroad_factor_for_road    
@@ -316,6 +319,7 @@ assign downhillcostfactor
                                                     else 0.0
 
 assign uphillcostfactor 
+    if shortest_way  then (   add 1 accesspenalty )   else
     max 1.0 
     add rawcostfactor2
     add Offroad_factor_for_road
@@ -470,7 +474,8 @@ assign initialcost switch or bikeaccess footaccess 0 1000000
 # 17/6/2015 v1.7.5 BETA + Track penalty system
 # 20/6/2015 v1.7.6 RELEASE * Modified and simplified route preferencing
 # 01/12/2015 v1.8.1 ALFA   +ported MTB_factor from bicycle Trekking template, renamed for hiking context to Offroad_factor
-# 02/4/2015 v1.8.2 ALFA   +implemented path preference factor , try 20.0. Default 0.0 has no effect
-# 3/5/2015  v1.8.3 BETA   +implemented navigation hint support
-# 7/5/2015  v1.8.4 RELEASE +implemented navigation hint support ftom BRouter 1.4
-# 10/5/2015 v1.8.6 BETA   * decreased turnInstructionCatchingRange from default 40 to 20
+# 02/4/2016 v1.8.2 ALFA   +implemented path preference factor , try 20.0. Default 0.0 has no effect
+# 3/5/2016  v1.8.3 BETA   +implemented navigation hint support
+# 7/5/2016  v1.8.4 RELEASE +implemented navigation hint support ftom BRouter 1.4
+# 10/5/2016 v1.8.6 BETA   * decreased turnInstructionCatchingRange from default 40 to 20
+# 18/5/2016  v1.8.7 BETA   ! Fixed down/uphillcostfactors for shortest_way - to be really shortest
