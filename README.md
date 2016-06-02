@@ -1,6 +1,8 @@
 ### Hiking-Poutnik
 
-is the template for the development of my Hiking profiles for Brouter. You can easily derive up-to-date versions of my [Hiking profiles](https://github.com/poutnikl/Brouter-profiles/wiki/Hiking-profiles) or even your own versions from this latest [Hiking profile template file](https://raw.githubusercontent.com/poutnikl/Hiking-Poutnik/master/Hiking.brf). While saving, do not forget the .brf extension. 
+is the template for the development of my Hiking profiles for Brouter. You can find its obsolete version in Brouter-web as [hiking-beta profile](http://brouter.de/brouter/profiles2/hiking-beta.brf) ( but not in Brouter application ).
+
+You can easily derive up-to-date versions of my previously published [Hiking profiles](https://github.com/poutnikl/Brouter-profiles/wiki/Hiking-profiles) or even your own profile versions from this latest [Hiking profile template file](https://raw.githubusercontent.com/poutnikl/Hiking-Poutnik/master/Hiking.brf). While saving, do not forget the .brf extension. 
 
 The template uses difficulty rating [SAC scale](https://wiki.openstreetmap.org/wiki/Key:sac_scale#Values) for hiking. In case of missing SAC rating, but MTB scale rating is available, it estimates SAC scale from [MTB scale](https://wiki.openstreetmap.org/wiki/Key:mtb:scale#mtb:scale.3D0-6).
 
