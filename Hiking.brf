@@ -1,6 +1,6 @@
 # Walking-Hiking-Mountain/Alpine Hiking profile TEMPLATE
-# 18/5/2016  v1.8.7   ! Fixed down/uphillcostfactors for shortest_way - to be really shortest
-#
+# 02/oct/2016  v1.8.8   ! Fixed Costfactor 10000 issue for navigation hints.
+#                       + added Notepad++ folding comment hints
 # LEGEND
 #
 # Legend above is placeholder for generated comments of final profile
@@ -8,7 +8,9 @@
 # See also https://github.com/poutnikl/Brouter-profiles/wiki
 # and https://github.com/poutnikl/Hiking-Poutnik
 
+# bstart /globalcontext
 ---context:global
+# bstart /globalvars
 
 assign   consider_elevation       1    # 0 as default, otherwise less interesting flat roads are chosen.
 assign   shortest_way             0    # 0 as default, duplicate shortest standard profile, SAC access limit ignored for now
@@ -51,6 +53,9 @@ assign   uphillcostvalue      7
 assign   uphillcutoffvalue      3
 assign   downhillcutoffvalue  3
 assign   downhillcostvalue    7
+
+# bend /globalvars
+# bstart /globalvarsinternal
 
 #internal parameters
 assign   Offroad_hillcostfactor   multiply -0.3333 ( max -3.0 ( multiply -1.0 ( max 0.0 Offroad_factor ) ) )
@@ -99,7 +104,10 @@ assign  SAC_K2_5    add ( multiply ( add SAC_K2_4 1.0 ) SAC_K20 ) -1.0
 assign  SAC_K1_6    add ( multiply ( add SAC_K1_5 1.0 ) SAC_K10 ) -1.0
 assign  SAC_K2_6    add ( multiply ( add SAC_K2_5 1.0 ) SAC_K20 ) -1.0
 
+# bend /globalvarsinternal
+# bend /globalcontext
 
+# bstart /waycontext
 ---context:way   # following code refers to way-tags
 
 assign ispaved or surface=paved or surface=asphalt or surface=concrete surface=paving_stones
@@ -131,7 +139,6 @@ assign issidewalk   sidewalk=left|right|both|yes
 assign istrack      highway=track|road|path|footway
 assign ismainroad   highway=motorway|motorway_link|trunk|trunk_link|primary|primary_link|secondary|secondary_link|tertiary|tertiary_link|unclassified
 
-#assign turncost   switch or shortest_way  is_ldhr   0 turncost_value  #v1.5 
 assign turncost   0 #v1.8.3
 
 assign initialcost 
@@ -157,7 +164,7 @@ assign footaccess     or any_hiking_route
                       or bicycle=dismount
                       switch foot=      defaultaccess    not foot=private|no
                          
-assign accesspenalty switch footaccess 0 switch bikeaccess 4 100000
+assign accesspenalty switch footaccess 0 switch bikeaccess 4 10000
 
 assign badoneway = 0
 assign onewaypenalty = 0
@@ -191,7 +198,7 @@ assign SAC
         else 0
                                                                  
 assign  SAC_scale_access   # if SAC_scale_limit < SAC then true else false 
-    if sac_scale= then true  else equal ( max SAC_scale_limit SAC ) SAC_scale_limit  
+    if sac_scale= then true  else ( not lesser SAC_scale_limit SAC )
                                       
 assign  SAC_scale_penalty
 
@@ -263,7 +270,13 @@ else 0.0
         
 assign rawcostfactor # can be <1.0, is treated later
 
-    if shortest_way  then (   add 1 accesspenalty )   else
+  if    ( and highway= not route=ferry )  then 10000 
+  else if    highway=steps then ( switch allow_steps   ( switch consider_elevation 1.0 3.0 )     100000 )
+  else  if    route=ferry    then ( if allow_ferries then 2.34 else 100000 )
+  
+  min 9999 
+  
+  if shortest_way  then (   add 1 accesspenalty )   else
   
   add      nonpath_penalty
   add      accesspenalty
@@ -288,16 +301,11 @@ assign rawcostfactor # can be <1.0, is treated later
   else if highway=motorway|motorway_link  then  100000
   else if highway=proposed|abandoned|construction then (  switch ismuddy 10  switch iswet 6 4 )
   
-  else if highway=trunk|trunk_link    then 
-      ( switch iswet ( switch issidewalk 1.5 10 )    ( switch issidewalk 2.0 20 ) )
- else if highway=primary|primary_link    then 
-      ( switch iswet ( switch issidewalk 1.5 5 )    ( switch issidewalk 2.0 10 ) )     
-  else if highway=secondary|secondary_link        then    
-      ( switch iswet  ( switch issidewalk 1.2 2.5 )    ( switch issidewalk 1.5 4.0 ) )
-  else if highway=tertiary|tertiary_link        then
-      ( if iswet then ( switch issidewalk 1.1 1.5 ) else ( switch issidewalk 1.2 2.5 ) )
-  else if highway=unclassified                 then
-        ( if ismuddy then 3.0 else if iswet then ( switch issidewalk 1.0 1.3 ) else ( switch issidewalk 1.1 1.5 ) ) 
+  else if highway=trunk|trunk_link          then ( switch iswet ( switch issidewalk 1.5 10  ) ( switch issidewalk 2.0 20 ) )
+  else if highway=primary|primary_link      then ( switch iswet ( switch issidewalk 1.5 5   ) ( switch issidewalk 2.0 10 ) )     
+  else if highway=secondary|secondary_link  then ( switch iswet ( switch issidewalk 1.2 2.5 ) ( switch issidewalk 1.5 4.0 ) )
+  else if highway=tertiary|tertiary_link    then ( switch iswet ( switch issidewalk 1.1 1.5 ) ( switch issidewalk 1.2 2.5 ) )
+  else if highway=unclassified              then ( if ismuddy then 3.0 else if iswet then ( switch issidewalk 1.0 1.3 ) else ( switch issidewalk 1.1 1.5 ) ) 
   
   else add cost_of_unknown switch ismuddy 0.5 0.0
   )
@@ -376,7 +384,8 @@ assign classifiermask add          isbadoneway
                       add multiply isroundabout   4
                       add multiply islinktype     8
                           multiply isgoodforcars 16  
- 
+# bend /waycontext
+# bstart /nodecontext 
 ---context:node  # following code refers to node tags
 
 
@@ -409,6 +418,8 @@ assign footaccess
 
 assign initialcost switch or bikeaccess footaccess 0 1000000
 
+# bend /nodecontext 
+# bstart /legend 
 #############################################################################################
 # ****) Offroad_factor ( ported MTB_factor from bicycle Trekking profile
 #############################################################################################
@@ -483,3 +494,5 @@ assign initialcost switch or bikeaccess footaccess 0 1000000
 # 7/5/2016  v1.8.4 RELEASE +implemented navigation hint support ftom BRouter 1.4
 # 10/5/2016 v1.8.6 BETA   * decreased turnInstructionCatchingRange from default 40 to 20
 # 18/5/2016  v1.8.7 BETA   ! Fixed down/uphillcostfactors for shortest_way - to be really shortest
+
+# bend /legend
