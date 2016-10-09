@@ -1,6 +1,7 @@
 # Walking-Hiking-Mountain/Alpine Hiking profile TEMPLATE
 # 02/oct/2016  v1.8.8   ! Fixed Costfactor 10000 issue for navigation hints.
 #                       + added Notepad++ folding comment hints
+# 09/oct/2016  v1.8.9   ! code cleanup
 # LEGEND
 #
 # Legend above is placeholder for generated comments of final profile
@@ -58,16 +59,16 @@ assign   downhillcostvalue    7
 # bstart /globalvarsinternal
 
 #internal parameters
-assign   Offroad_hillcostfactor   multiply -0.3333 ( max -3.0 ( multiply -1.0 ( max 0.0 Offroad_factor ) ) )
+assign   Offroad_hillcostfactor   multiply 0.3333 ( min 3.0 ( max 0.0 Offroad_factor  ) )
                   # for Offroadfactor <=0 is 0, for Offroadfactor >=3 is 1, otherwise 0.3333 * Offroadfactor
                   # progressively decreases hillcosts to be 0.0 at Offroad_factor = 3.0
                   # if Offroad_factor = 1 , then downhillcost decreases e.g. from 60 to 40
 
 assign   downhillcost if consider_elevation  then 
-        ( multiply ( add 1.0 ( multiply Offroad_hillcostfactor -1.0 ) ) downhillcostvalue ) else 0
+        ( multiply ( sub 1.0 Offroad_hillcostfactor  ) downhillcostvalue ) else 0
 
 assign   uphillcost   if consider_elevation  then
-        ( multiply ( add 1.0 ( multiply Offroad_hillcostfactor -1.0 ) ) uphillcostvalue ) else 0
+        ( multiply ( sub 1.0 Offroad_hillcostfactor  ) uphillcostvalue   ) else 0
 
 assign   uphillcutoff    if  consider_elevation   then    uphillcutoffvalue else 1.5
 assign   downhillcutoff  if  consider_elevation   then  downhillcutoffvalue else 1.5 
@@ -164,7 +165,7 @@ assign footaccess     or any_hiking_route
                       or bicycle=dismount
                       switch foot=      defaultaccess    not foot=private|no
                          
-assign accesspenalty switch footaccess 0 switch bikeaccess 4 10000
+assign accesspenalty switch footaccess 0 9998
 
 assign badoneway = 0
 assign onewaypenalty = 0
@@ -274,7 +275,7 @@ assign rawcostfactor # can be <1.0, is treated later
   else if    highway=steps then ( switch allow_steps   ( switch consider_elevation 1.0 3.0 )     100000 )
   else  if    route=ferry    then ( if allow_ferries then 2.34 else 100000 )
   
-  min 9999 
+  else min 9999 
   
   if shortest_way  then (   add 1 accesspenalty )   else
   
@@ -311,16 +312,19 @@ assign rawcostfactor # can be <1.0, is treated later
   )
   
 assign rawcostfactor2   
-  
-  if equal hiking_routes_preference 0.0     then    rawcostfactor  # Not preferring hiking routes
-  else if is_ldhr                 then    rawcostfactor  # is hiking route
-                          else    multiply rawcostfactor nonhiking_route_penalty    
+  if     greater rawcostfactor 9997 then rawcostfactor 
+  else  if equal hiking_routes_preference 0.0     then    rawcostfactor  # Not preferring hiking routes
+  else if is_ldhr                                 then    rawcostfactor  # is hiking route
+                                                  else    multiply rawcostfactor nonhiking_route_penalty    
                           
-assign costfactor if shortest_way  then  ( add 1 accesspenalty )   
+assign costfactor 
+  if      greater rawcostfactor2 9997 then rawcostfactor2
+  else if shortest_way  then  ( add 1 accesspenalty )   
        else max 1.0 add rawcostfactor2 Offroad_factor_for_road                            
 
 assign downhillcostfactor
-    if shortest_way  then (   add 1 accesspenalty )   else
+    if     greater rawcostfactor2 9997 then rawcostfactor2
+    else   if shortest_way  then (   add 1 accesspenalty )   else
     max 1.0 
     add rawcostfactor2
     add Offroad_factor_for_road    
@@ -331,7 +335,8 @@ assign downhillcostfactor
                                                     else 0.0
 
 assign uphillcostfactor 
-    if shortest_way  then (   add 1 accesspenalty )   else
+    if      greater rawcostfactor2 9997 then rawcostfactor2
+    else    if shortest_way  then (   add 1 accesspenalty )   else
     max 1.0 
     add rawcostfactor2
     add Offroad_factor_for_road
