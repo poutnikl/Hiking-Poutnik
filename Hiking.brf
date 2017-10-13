@@ -254,22 +254,25 @@ assign Offroad_factor_for_road
   if  ( equal Offroad_factor 0.0 ) then 0.0  else 
   (
     if    ismainroad    then  Offroad_factor  
-    else if ( or ispaved highway=residential|living_street|service|pedestrian )  then ( multiply 0.33 Offroad_factor )   
-    else if ( not isunpaved )                                                                  then ( multiply -0.33 Offroad_factor )   
-      else  ( multiply -1 multiply Offroad_factor ( add 1.0 ( multiply 0.33 SAC_scale_penalty ) ) )
+    else if ( or ispaved highway=residential|living_street|service|pedestrian ) 
+        then ( multiply 0.33 Offroad_factor )   
+    else if ( not isunpaved )   
+        then ( multiply -0.33 Offroad_factor )   
+    else  ( multiply -1 multiply Offroad_factor ( add 1.0 ( multiply 0.33 SAC_scale_penalty ) ) )
     )
                 
 assign nonpath_penalty =
 if ( equal path_preference 0.0 ) then 0.0                  # nonpath_penalty inactive
-else if not istrack then path_preference                   #istrack = highway=track/path/road/footway
-else if ispaved then                                      ( multiply path_preference 0.5 )
-else if or ( and not isunpaved not highway=path ) 
-           ( tracktype=grade1|grade2 )  then              ( multiply path_preference 0.25 )
-else if not ( and isunpaved 
-              and highway=path 
-              and tracktype=grade1|grade2  
-                   not surface=gravel|cobblestone|pebblestone )  
-                                        then              ( multiply path_preference 0.125 )
+else if not istrack then 
+    path_preference                   #istrack = highway=track/path/road/footway
+else if ispaved then   
+    ( multiply path_preference 0.5 )
+else if or ( and not isunpaved not highway=path )       ( tracktype=grade1|grade2 )  then 
+    
+    ( multiply path_preference 0.25 )
+else if not ( and isunpaved and highway=path not surface=gravel|cobblestone|pebblestone )  then 
+    
+   ( multiply path_preference 0.125 )
 else 0.0                
         
 assign rawcostfactor # can be <1.0, is treated later
