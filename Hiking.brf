@@ -31,8 +31,11 @@ assign   path_preference          0.0 # 0.0 as default, try 20.0 to penalize non
 assign   SAC_scale_limit          3    # 0..6, 0 to avoid any SAC paths, 1 for T1 as maximum, 6 for T6 as maximum
                                        # all paths with sac_scale higher than  SAC_scale_limit are forbidden.
 assign   SAC_scale_preferred      1    # The same, but the preferred SAC scale level. Level below are slightly, above strongly penalized
-assign   SAC_access_penalty       9000 # costfactor 9999 means the most horrible but allowed road., 
-                                       # 100000=forbidden. This makes difference if forbidden way is the only option.
+assign   SAC_access_penalty       9000 # 1 m like 9 km of normal roas. A costfactors <9999 means the most horrible but allowed road. 
+                                       # Such a road is taken as the last and the only option.  
+                                       # 9999 means a forbidden road, but considered in navigation hints. 
+                                       # 10000+ means road totally ignored by BRouter, like if it never existed.
+                                       # 
 assign  SAC_K1 0.05                    # Penalizing of SAC levels below preferred 
 assign  SAC_K2 0.6                     # Penalizing of SAC levels above preferred  
 
