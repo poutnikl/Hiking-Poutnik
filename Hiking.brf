@@ -1,13 +1,12 @@
 # Walking-Hiking-Mountain/Alpine Hiking profile TEMPLATE
-# 02/oct/2016  v1.8.8   ! Fixed Costfactor 10000 issue for navigation hints.
-#                       + added Notepad++ folding comment hints
-# 09/oct/2016  v1.8.9   ! code cleanup
+#
 # LEGEND
 #
 # Legend above is placeholder for generated comments of final profile
 # See the profile bottom for changelogs and verbose *) comments
 # See also https://github.com/poutnikl/Brouter-profiles/wiki
 # and https://github.com/poutnikl/Hiking-Poutnik
+# v1.9  * tweaked nonpath penalty, code reformatting
 
 # bstart /globalcontext
 ---context:global
@@ -21,10 +20,8 @@ assign   turnInstructionCatchingRange  20 # V1.8.5 / default=40, but foot paths 
 
 assign   iswet                     0       # 0 as default, 1 tries to prevent muddy boots and wet buttocks
 assign   hiking_routes_preference  0.20    # 0.10 as default, Increases cost of non hiking routes by multiplier 1 + hiking_routes_preference
-
-assign   Offroad_factor           0.0 # default 0.0, see ****), see also https://github.com/poutnikl/Brouter-profiles/wiki/Trekking-MTB-Profiles---legend
-
-assign   path_preference          0.0 # 0.0 as default, try 20.0 to penalize nonpath ways a/o paved ways
+assign   Offroad_factor            0.0 # default 0.0, try 0.5-2.5 ( max 3 ). See the bottom and also https://github.com/poutnikl/Brouter-profiles/wiki/Trekking-MTB-Profiles---legend
+assign   path_preference           0.0 # 0.0 as default, try 1.0-20.0 to penalize nonpath ways a/o paved ways
 
 #SAC - mountain hiking - see http://wiki.openstreetmap.org/wiki/Key:sac_scale
 
@@ -33,8 +30,7 @@ assign   SAC_scale_limit          3    # 0..6, 0 to avoid any SAC paths, 1 for T
 assign   SAC_scale_preferred      1    # The same, but the preferred SAC scale level. Level below are slightly, above strongly penalized
 assign   SAC_access_penalty       9000 # 1 m like 9 km of normal roas. A costfactors <9999 means the most horrible but allowed road. 
                                        # Such a road is taken as the last and the only option.  
-                                       # 9999 means a forbidden road, but considered in navigation hints. 
-                                       # 10000+ means road totally ignored by BRouter, like if it never existed.
+                                       # CF=9999+ means a forbidden road, but if equal to 9999, navigation hints considered.
                                        # 
 assign  SAC_K1 0.05                    # Penalizing of SAC levels below preferred 
 assign  SAC_K2 0.6                     # Penalizing of SAC levels above preferred  
@@ -263,12 +259,12 @@ assign Offroad_factor_for_road
                 
 assign nonpath_penalty =
 if ( equal path_preference 0.0 ) then 0.0                  # nonpath_penalty inactive
-else if not istrack then 
-    path_preference                   #istrack = highway=track/path/road/footway
+else if not istrack then                                   # IF not small OSM way.  istrack = highway=track/path/road/footway
+    multiply ( switch issidewalk 0.7 1.0 ) path_preference 
 else if ispaved then   
     ( multiply path_preference 0.5 )
 else if or ( and not isunpaved not highway=path )       ( tracktype=grade1|grade2 )  then 
-    
+   
     ( multiply path_preference 0.25 )
 else if not ( and isunpaved and highway=path not surface=gravel|cobblestone|pebblestone )  then 
     
@@ -505,5 +501,9 @@ assign initialcost switch or bikeaccess footaccess 0 1000000
 # 7/5/2016  v1.8.4 RELEASE +implemented navigation hint support ftom BRouter 1.4
 # 10/5/2016 v1.8.6 BETA   * decreased turnInstructionCatchingRange from default 40 to 20
 # 18/5/2016  v1.8.7 BETA   ! Fixed down/uphillcostfactors for shortest_way - to be really shortest
+# 02/oct/2016  v1.8.8   ! Fixed Costfactor 10000 issue for navigation hints.
+#                       + added Notepad++ folding comment hints
+# 09/oct/2016  v1.8.9   ! code cleanup
+
 
 # bend /legend
