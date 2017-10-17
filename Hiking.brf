@@ -219,31 +219,23 @@ assign  SAC_scale_penalty
        else if equal ( add SAC_scale_preferred 6 ) SAC       then SAC_K2_6 
        else 1.0   
        
-assign tracktype_penalty (
-    if not istrack           then 0.0    else if tracktype=       then 0.0
-    else if tracktype=grade1 then 0.1    else if tracktype=grade2 then 0.05
-    else if tracktype=grade3 then 0.0    else if tracktype=grade4 then 0.0
-    else if tracktype=grade5 then 0.0       else 0.0 )
-
-assign surface_penalty (
-    if not istrack                           then 0.0
-    else if ispaved                          then 0.0
-    else if surface=cobblestone              then 0.0
-    else if surface=fine_gravel|ground|earth|unpaved|grass|compacted then 0.0
+assign track_surface_penalty (
+    
+    if      surface=gravel|pebblestone  then 0.3
+    else if surface=cobblestone  then 0.2
+    else if surface=mud                      then 2.0
     else if surface=dirt|sand                then 0.1
-    else if surface=                         then 0.0
-    else if surface=gravel|pebblestone       then 0.2
-                                             else 0.0 )
+    else 0.0
 
 assign wet_penalty (
     if not iswet then 0.0
-    else if ismainroad then -0.1
-    else if tracktype=grade1 then ( if ispaved then -0.2 else if ismuddy then 0.2 else 0.1 )
-        else if tracktype=grade2 then ( if ispaved then -0.1 else if ismuddy then 0.4 else 0.2 )
-        else if tracktype=grade3 then ( if ispaved then -0.0 else if ismuddy then 0.8 else 0.3 )
-        else if tracktype=grade4 then ( if ispaved then  0.1 else if ismuddy then 1.5 else 0.5 )
-        else if tracktype=grade5 then ( if ispaved then  0.2 else if ismuddy then 2.5 else 1.0 )
-        else                          ( if ispaved then -0.2 else if ismuddy then 2.5 else 1.0 )
+    else if ismainroad then 0.0
+    else if ( or ispaved tracktype=grade1|grade2  ) 0.0
+    else if not istrack then ( if ismuddy then 0.8 else 0.4 )
+    else if tracktype=grade3 then ( if ismuddy then 1.0 else 0.5 )
+    else if tracktype=grade4 then ( if ismuddy then 1.5 else 0.75 )
+    else if tracktype=grade5 then ( if ismuddy then 2.0 else 1.0 )
+    else                          ( if ismuddy then 2.0 else 1.0 )
         )
 
 assign Offroad_factor_for_road
@@ -258,18 +250,14 @@ assign Offroad_factor_for_road
     )
                 
 assign nonpath_penalty =
-if ( equal path_preference 0.0 ) then 0.0                  # nonpath_penalty inactive
-else if not istrack then                                   # IF not small OSM way.  istrack = highway=track/path/road/footway
-    multiply ( switch issidewalk 0.7 1.0 ) path_preference 
-else if ispaved then   
-    ( multiply path_preference 0.5 )
-else if or ( and not isunpaved not highway=path )       ( tracktype=grade1|grade2 )  then 
-   
-    ( multiply path_preference 0.25 )
-else if not ( and isunpaved and highway=path not surface=gravel|cobblestone|pebblestone )  then 
-    
-   ( multiply path_preference 0.125 )
-else 0.0                
+    if ( equal path_preference 0.0 ) then 0.0                  # nonpath_penalty inactive
+    else multiply  path_preference (
+     if not istrack then  multiply ( switch issidewalk 0.7 1.0 ) 1.0 # IF not small OSM way.  istrack = highway=track/path/road/footway
+    else if ispaved then 0.5 
+    else if or ( and not isunpaved not highway=path )  tracktype=grade1|grade2  then  0.25
+    else if not ( and isunpaved and highway=path not surface=gravel|cobblestone|pebblestone )  then 0.125 
+    else 0.0                
+    )
         
 assign rawcostfactor # can be <1.0, is treated later
 
@@ -298,8 +286,7 @@ assign rawcostfactor # can be <1.0, is treated later
                                      then  ( switch ismuddy 1.5     switch iswet   1.0 1.1 )
   else if    highway=service         then  ( switch ismuddy 1.5     switch iswet   1.1 1.2 )
   
-  else if    istrack                 then 
-       ( add 1.0 add tracktype_penalty add surface_penalty      add wet_penalty        SAC_scale_penalty      )
+  else if    istrack                 then  ( add 1.0 max track_surface_penalty  max wet_penalty  SAC_scale_penalty )
 
   else if highway=motorway|motorway_link  then  100000
   else if highway=proposed|abandoned|construction then (  switch ismuddy 10  switch iswet 6 4 )
