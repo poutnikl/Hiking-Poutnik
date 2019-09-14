@@ -7,7 +7,8 @@
 # See also https://github.com/poutnikl/Brouter-profiles/wiki
 # and https://github.com/poutnikl/Hiking-Poutnik
 # v1.9  * tweaked nonpath penalty, code reformatting
-        * simplified istrack penalties
+#        * simplified istrack penalties
+#        * iswet > is_wet
 
 # bstart /globalcontext
 ---context:global
@@ -19,7 +20,7 @@ assign   shortest_way             0    # 0 as default, duplicate shortest standa
 assign   turnInstructionMode  =   1       # 0=none, 1=auto-choose, 2=locus-style, 3=osmand-style
 assign   turnInstructionCatchingRange  20 # V1.8.5 / default=40, but foot paths may be more distingushed, especially in cities.
 
-assign   iswet                     0       # 0 as default, 1 tries to prevent muddy boots and wet buttocks
+assign   is_wet                    0       # %is_wet% | Wet conditions | boolean
 assign   hiking_routes_preference  0.20    # 0.10 as default, Increases cost of non hiking routes by multiplier 1 + hiking_routes_preference
 assign   Offroad_factor            0.0 # default 0.0, try 0.5-2.5 ( max 3 ). See the bottom and also https://github.com/poutnikl/Brouter-profiles/wiki/Trekking-MTB-Profiles---legend
 assign   path_preference           0.0 # 0.0 as default, try 1.0-20.0 to penalize nonpath ways a/o paved ways
@@ -132,7 +133,7 @@ assign nodeaccessgranted        any_hiking_route
 
 # ismuddy addresses potentially bad surface conditions during wet weather ( mud, slickiness of grass)
 assign ismuddy      and or isunpaved surface= 
-                    and iswet
+                    and is_wet
                     not or surface=gravel surface=pebblestone 
 
 assign issidewalk   sidewalk=left|right|both|yes
@@ -227,9 +228,10 @@ assign track_surface_penalty (
     else if surface=mud                 then 2.0
     else if surface=dirt|sand           then 0.3
     else 0.0
+    )
 
 assign wet_penalty (
-    if or not iswet or ismainroad or ispaved tracktype=grade1|grade2  then 0.0
+    if or not is_wet or ismainroad or ispaved tracktype=grade1|grade2  then 0.0
     else if not istrack then ( if ismuddy then 0.8 else 0.4 )
     else if tracktype=grade3 then ( if ismuddy then 1.0 else 0.5 )
     else if tracktype=grade4 then ( if ismuddy then 2.0 else 1.0 )
@@ -275,26 +277,26 @@ assign rawcostfactor # can be <1.0, is treated later
   else if    highway=steps then ( switch allow_steps   ( switch consider_elevation 1.0 3.0 )     100000 )
   else  if    route=ferry    then ( if allow_ferries then 2.34 else 100000 )
   
-# iswet=1 in global context section means wet weather, increases penalty for eventually inconvenient ways
+# is_wet=1 in global context section means wet weather, increases penalty for eventually inconvenient ways
 # ismuddy boolean relates in wet weather to unpaved or unclassified surface, that can have mud or get slicky in wet weather.
 
   else if    highway=pedestrian       then ( switch ismuddy 1.3 1.0 )
-  else if    highway=bridleway        then ( switch ismuddy 2.5     switch iswet   1.4 1.2 )
-  else if    highway=cycleway         then ( switch ismuddy 1.4     switch iswet   1.0 1.1 )
+  else if    highway=bridleway        then ( switch ismuddy 2.5     switch is_wet   1.4 1.2 )
+  else if    highway=cycleway         then ( switch ismuddy 1.4     switch is_wet   1.0 1.1 )
   else if    highway=residential|living_street    
-                                     then  ( switch ismuddy 1.5     switch iswet   1.0 1.1 )
-  else if    highway=service         then  ( switch ismuddy 1.5     switch iswet   1.1 1.2 )
+                                     then  ( switch ismuddy 1.5     switch is_wet   1.0 1.1 )
+  else if    highway=service         then  ( switch ismuddy 1.5     switch is_wet   1.1 1.2 )
   
   else if    istrack                 then  ( add 1.0 max track_surface_penalty  max wet_penalty  SAC_scale_penalty )
 
   else if highway=motorway|motorway_link  then  100000
-  else if highway=proposed|abandoned|construction then (  switch ismuddy 10  switch iswet 6 4 )
+  else if highway=proposed|abandoned|construction then (  switch ismuddy 10  switch is_wet 6 4 )
   
-  else if highway=trunk|trunk_link          then ( switch iswet ( switch issidewalk 1.5 10  ) ( switch issidewalk 2.0 20 ) )
-  else if highway=primary|primary_link      then ( switch iswet ( switch issidewalk 1.5 5   ) ( switch issidewalk 2.0 10 ) )     
-  else if highway=secondary|secondary_link  then ( switch iswet ( switch issidewalk 1.2 2.5 ) ( switch issidewalk 1.5 4.0 ) )
-  else if highway=tertiary|tertiary_link    then ( switch iswet ( switch issidewalk 1.1 1.5 ) ( switch issidewalk 1.2 2.5 ) )
-  else if highway=unclassified              then ( if ismuddy then 3.0 else if iswet then ( switch issidewalk 1.0 1.3 ) else ( switch issidewalk 1.1 1.5 ) ) 
+  else if highway=trunk|trunk_link          then ( switch is_wet ( switch issidewalk 1.5 10  ) ( switch issidewalk 2.0 20 ) )
+  else if highway=primary|primary_link      then ( switch is_wet ( switch issidewalk 1.5 5   ) ( switch issidewalk 2.0 10 ) )     
+  else if highway=secondary|secondary_link  then ( switch is_wet ( switch issidewalk 1.2 2.5 ) ( switch issidewalk 1.5 4.0 ) )
+  else if highway=tertiary|tertiary_link    then ( switch is_wet ( switch issidewalk 1.1 1.5 ) ( switch issidewalk 1.2 2.5 ) )
+  else if highway=unclassified              then ( if ismuddy then 3.0 else if is_wet then ( switch issidewalk 1.0 1.3 ) else ( switch issidewalk 1.1 1.5 ) ) 
   
   else add cost_of_unknown switch ismuddy 0.5 0.0
   )
@@ -429,7 +431,7 @@ assign initialcost switch or bikeaccess footaccess 0 1000000
 # Positive values progessively promote/penalize roads in favour of MTB riding.
 
 # Negative value has the opposite effect, preferring mainroads and penalizing unpaved roads.
-# This effect is somewhat similar to iswet=1 ( *) wet weather mode ),
+# This effect is somewhat similar to is_wet=1 ( *) wet weather mode ),
 # but does not distinguish particular road classes / surfaces / smoothness,
 # aside of mentioned schema below.
 
